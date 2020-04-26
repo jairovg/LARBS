@@ -149,7 +149,10 @@ putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwrit
 		sudo -u "$name" git clone -b "$branch" --depth 1 "$1" "$dir" >/dev/null 2>&1
 		sudo -u "$name" cp -rfT "$dir" "$2"
 	else
-		sudo -u "$name" git clone --bare -b "$branch" --depth 1 "$1" "$dir/$bare" >/dev/null 2>&1
+		sudo -u "$name" git clone --bare -b "$branch" --depth 1 "$1" "$2/$bare" >/dev/null 2>&1
+		sudo -u "$name" alias config="/usr/bin/git --git-dir=$2/$bare/ --work-tree=$2" >/dev/null 2>&1
+		sudo -u "$name" config checkout >/dev/null 2>&1
+		sudo -u "$name" config config --local status.showUntrackedFiles no >/dev/null 2>&1
 	fi
 	}
 
