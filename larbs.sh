@@ -138,13 +138,19 @@ installationloop() { \
 	done < /tmp/progs.csv ;}
 
 putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwriting conflicts
+	bare=$(dialog --inputbox "If you want to use a bare repo, type the name of the directory" 10 60 3>&1 1>&2 2>&3 3>&1) || exit
 	dialog --infobox "Downloading and installing config files..." 4 60
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
 	dir=$(mktemp -d)
 	[ ! -d "$2" ] && mkdir -p "$2"
+	[ ! -z "$bare" ] && mkdir -p "$2/$bare"
 	chown -R "$name":wheel "$dir" "$2"
-	sudo -u "$name" git clone -b "$branch" --depth 1 "$1" "$dir" >/dev/null 2>&1
-	sudo -u "$name" cp -rfT "$dir" "$2"
+	if [ -z "$bare" ] then
+		sudo -u "$name" git clone -b "$branch" --depth 1 "$1" "$dir" >/dev/null 2>&1
+		sudo -u "$name" cp -rfT "$dir" "$2"
+	else
+		sudo -u "$name" git clone --bare -b "$branch" --depth 1 "$1" "$dir/$bare"
+	fi
 	}
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
